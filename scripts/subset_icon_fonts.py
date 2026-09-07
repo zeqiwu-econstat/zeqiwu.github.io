@@ -51,9 +51,6 @@ SKIP_DIR_NAMES = {
 # Vendor / mapping sources: we parse them separately; don't treat them as usage.
 SKIP_PATH_PARTS = {
     ("_sass", "font-awesome"),
-    ("_sass", "tabler-icons"),
-    # Vendor JS (can contain lots of false positives).
-    ("assets", "js", "distillpub"),
 }
 
 SKIP_FILES = {
