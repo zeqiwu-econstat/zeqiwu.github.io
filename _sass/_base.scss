@@ -940,54 +940,41 @@ footer.sticky-bottom {
 
       /* Publications: strengthen title/author hierarchy */
       .paper-title {
-        font-weight: 650;
-        font-size: 1.18rem;
-        line-height: 1.35;
-        margin-bottom: 0.25rem;
+        font-weight: 600;
+        font-size: 1.25rem;
+        line-height: 1.4;
+        margin-bottom: 0.3rem;
         color: var(--global-text-color);
       }
 
       .periodical {
-        font-size: 1rem;
+        font-size: 1.125rem;
         font-weight: 400;
         line-height: 1.35;
         color: var(--global-text-color);
+
+        strong {
+          font-weight: 500;
+        }
       }
 
       .author {
         font-weight: 400;
-        font-size: 1.03rem;
+        font-size: 1.125rem;
+        line-height: 1.5;
         color: var(--global-text-color);
-        opacity: 0.88;
-        margin-bottom: 0.25rem;
-      }
+        margin-bottom: 0.3rem;
 
-      .author {
         a {
           text-decoration: none;
           border-bottom: none;
           transition: color 0.15s ease;
 
-          &:hover {
-            text-decoration: none;
+          &:hover,
+          &:focus-visible {
+            text-decoration: underline;
+            text-underline-offset: 0.15em;
             color: var(--global-theme-color);
-          }
-        }
-
-        > em {
-          border-bottom: 1px solid;
-          font-style: normal;
-          font-weight: 500; /* self author slightly emphasized */
-        }
-
-        > span.more-authors {
-          color: var(--global-text-color-light);
-          border-bottom: 1px dashed var(--global-text-color-light);
-          cursor: pointer;
-
-          &:hover {
-            color: var(--global-text-color);
-            border-bottom: 1px dashed var(--global-text-color);
           }
         }
       }
@@ -1764,7 +1751,7 @@ mjx-container[jax="CHTML"][display="true"] {
 }
 
 .author-link {
-  color: var(--global-theme-color);
+  color: inherit;
   text-decoration: none;
   border-bottom: none;
   transition: color 0.15s ease;
@@ -1777,13 +1764,11 @@ mjx-container[jax="CHTML"][display="true"] {
   transition: color 0.15s ease;
 }
 
-.author-link:hover,
 .paper-title-link:hover {
   text-decoration: none;
   color: var(--global-theme-color);
 }
 
-.author-link::after,
 .paper-title-link::after {
   content: "\f08e";
   font-family: "Font Awesome 6 Free";
@@ -1798,7 +1783,6 @@ mjx-container[jax="CHTML"][display="true"] {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.author-link:hover::after,
 .paper-title-link:hover::after {
   opacity: 0.7;
   transform: translateX(0);
