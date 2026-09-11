@@ -46,7 +46,7 @@
   {% endif %}
 
   <!-- Entry bib key -->
-  <div id="{{ entry.key }}" class="{% if site.enable_publication_thumbnails %}col-sm-8{% else %}col-sm-10{% endif %}">
+  <div id="{{ entry.key }}" class="{% if site.enable_publication_thumbnails %}col-sm-8{% else %}col-12 publication-entry-body{% endif %}">
     <!-- Title -->
     {% assign paper_title_url = nil %}
     {% if entry.doi %}
@@ -105,45 +105,24 @@
           {%- endunless -%}
           {{- coauthor | strip -}}
         {%- endfor -%}
+        {% if entry.year %}
+          <span class="publication-date">
+            ({% if entry.status == 'working' and entry.month %}{{ entry.month | capitalize }}&nbsp;{% endif %}{{ entry.year }})
+          </span>
+        {% endif %}
       </div>
     {% endif %}
 
-    <!-- Journal/Book title and date -->
-    {% assign proceedings = 'inproceedings,incollection' | split: ',' %}
-    {% assign thesis = 'thesis,mastersthesis,phdthesis' | split: ',' %}
-    {% if entry.type == 'article' %}
-      {% capture entrytype %}<strong style="font-family: 'Playfair Display', 'Times New Roman', serif; font-style: italic;">{{ entry.journal }}, </strong>{% endcapture %}    
-    {% elsif proceedings contains entry.type %}
-      {% capture entrytype %}<em>In {{ entry.booktitle }}</em>{% endcapture %}
-    {% elsif thesis contains entry.type %}
-      {% capture entrytype %}<em>{{ entry.school }}</em>{% endcapture %}
-    {% else %}
-      {% capture entrytype %}{% endcapture %}
-    {% endif %}
-    {% if entry.month %}
-      {% capture entrymonth %}{{ " " }}{{ entry.month | capitalize }}{% endcapture %}
-    {% endif %}
-    {% if entry.year %}
-      {% capture entryyear %}{{ " " }}{{ entry.year }}{% endcapture %}
-    {% endif %}
-    {% if entry.location %}
-      {% capture entrytype %}{{ entrytype }}{{ ", " }}{{ entry.location }}{% endcapture %}
-    {% endif -%}
-    {% if entry.additional_info %}
-      {% capture entrytype %}{{ entrytype }}{{ entry.additional_info | markdownify | remove: '<p>' | remove: '</p>' }}{% endcapture %}
-    {% endif %}
-    {% capture hook_exists %}{% file_exists _includes/hook/bib.liquid %}{% endcapture %}
-    {% if hook_exists == 'true' %}
-      {% include hook/bib.liquid %}
-    {% endif %}
-    {% assign entrytype_text = entrytype | strip_html | strip %}
-    {% capture periodical %}{{ entrytype }}{% if entrytype_text != "" and entryyear != "" %} {% endif %}{{ entrymonth }}{{ entryyear }}{% endcapture %}
-    <div class="periodical">
-      {{ periodical | strip }}
-    </div>
-    <div class="periodical">
-      {{ entry.note | strip }}
-    </div>
+    <!-- Publication status and date -->
+    {% unless entry.status == 'working' %}
+      <div class="periodical">
+        {% if entry.type == 'article' %}<em class="publication-venue">{{ entry.journal }}</em>{% endif %}
+        {% if entry.volume %}<span class="publication-citation-separator">,</span> <span class="publication-volume">{{ entry.volume }}</span>{% endif %}{% if entry.number %}({{ entry.number }}){% endif %}{% if entry.pages %}<span class="publication-citation-separator">,</span> <span class="publication-pages">{{ entry.pages | replace: '--', '–' }}</span>{% endif %}
+        {% if entry.location %}{{ entry.location }}{% endif %}
+        {% if entry.additional_info %}{{ entry.additional_info | markdownify | remove: '<p>' | remove: '</p>' }}{% endif %}
+      </div>
+    {% endunless %}
+    {% if entry.note %}<div class="periodical">{{ entry.note | strip }}</div>{% endif %}
 
     <!-- Links/Buttons -->
     <div class="links">
@@ -156,90 +135,90 @@
       {% assign link_items = '' %}
 
       {% if entry.abstract %}
-        {% capture link_item %}<a class="abstract btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;" onclick="this.classList.toggle('abs-active')"><i class="fas fa-file-alt mr-1"></i> Abstract <i class="fas fa-angle-down ml-1 abstract-icon"></i></a>{% endcapture %}
+        {% capture link_item %}<a class="abstract btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;" onclick="this.classList.toggle('abs-active')"><i class="fas fa-file-alt mr-1"></i><span class="publication-link-label">abstract</span><i class="fas fa-angle-down ml-1 abstract-icon"></i></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.doi %}
-        {% capture link_item %}<a href="https://doi.org/{{ entry.doi }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="ai ai-doi mr-1"></i> DOI</a>{% endcapture %}
+        {% capture link_item %}<a href="https://doi.org/{{ entry.doi }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="ai ai-doi mr-1"></i><span class="publication-link-label">doi</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.arxiv %}
-        {% capture link_item %}<a href="http://arxiv.org/abs/{{ entry.arxiv }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="ai ai-arxiv mr-1"></i> arXiv</a>{% endcapture %}
+        {% capture link_item %}<a href="http://arxiv.org/abs/{{ entry.arxiv }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="ai ai-arxiv mr-1"></i><span class="publication-link-label">arXiv</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.pdf %}
         {% if entry.pdf contains '://' %}
-          {% capture link_item %}<a href="{{ entry.pdf }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-pdf mr-1"></i> PDF</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.pdf }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-pdf mr-1"></i><span class="publication-link-label">pdf</span></a>{% endcapture %}
         {% else %}
-          {% capture link_item %}<a href="{{ entry.pdf | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-pdf mr-1"></i> PDF</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.pdf | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-pdf mr-1"></i><span class="publication-link-label">pdf</span></a>{% endcapture %}
         {% endif %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.code %}
-        {% capture link_item %}<a href="{{ entry.code }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-code mr-1"></i> Code</a>{% endcapture %}
+        {% capture link_item %}<a href="{{ entry.code }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-code mr-1"></i><span class="publication-link-label">code</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.supp %}
         {% if entry.supp contains '://' %}
-          {% capture link_item %}<a href="{{ entry.supp }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-paperclip mr-1"></i> Supp</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.supp }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-paperclip mr-1"></i><span class="publication-link-label">supp</span></a>{% endcapture %}
         {% else %}
-          {% capture link_item %}<a href="{{ entry.supp | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-paperclip mr-1"></i> Supp</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.supp | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-paperclip mr-1"></i><span class="publication-link-label">supp</span></a>{% endcapture %}
         {% endif %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.slides %}
         {% if entry.slides contains '://' %}
-          {% capture link_item %}<a href="{{ entry.slides }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-powerpoint mr-1"></i> Slides</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.slides }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-powerpoint mr-1"></i><span class="publication-link-label">slides</span></a>{% endcapture %}
         {% else %}
-          {% capture link_item %}<a href="{{ entry.slides | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-powerpoint mr-1"></i> Slides</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.slides | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><i class="fas fa-file-powerpoint mr-1"></i><span class="publication-link-label">slides</span></a>{% endcapture %}
         {% endif %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.bibtex_show %}
-        {% capture link_item %}<a class="bibtex btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;">Bib</a>{% endcapture %}
+        {% capture link_item %}<a class="bibtex btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;"><span class="publication-link-label">bib</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.html %}
         {% if entry.html contains '://' %}
-          {% capture link_item %}<a href="{{ entry.html }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">HTML</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.html }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">html</span></a>{% endcapture %}
         {% else %}
-          {% capture link_item %}<a href="{{ entry.html | prepend: '/assets/html/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">HTML</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.html | prepend: '/assets/html/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">html</span></a>{% endcapture %}
         {% endif %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.video and site.enable_video_embedding %}
-        {% capture link_item %}<a class="abstract btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;">Video</a>{% endcapture %}
+        {% capture link_item %}<a class="abstract btn btn-academic-blue btn-sm rounded-pill" role="button" style="text-transform: none;"><span class="publication-link-label">video</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% elsif entry.video %}
-        {% capture link_item %}<a href="{{ entry.video }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">Video</a>{% endcapture %}
+        {% capture link_item %}<a href="{{ entry.video }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">video</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.blog %}
-        {% capture link_item %}<a href="{{ entry.blog }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">Blog</a>{% endcapture %}
+        {% capture link_item %}<a href="{{ entry.blog }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">blog</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.poster %}
         {% if entry.poster contains '://' %}
-          {% capture link_item %}<a href="{{ entry.poster }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">Poster</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.poster }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">poster</span></a>{% endcapture %}
         {% else %}
-          {% capture link_item %}<a href="{{ entry.poster | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">Poster</a>{% endcapture %}
+          {% capture link_item %}<a href="{{ entry.poster | prepend: '/research/' | relative_url }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">poster</span></a>{% endcapture %}
         {% endif %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 
       {% if entry.website %}
-        {% capture link_item %}<a href="{{ entry.website }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;">Website</a>{% endcapture %}
+        {% capture link_item %}<a href="{{ entry.website }}" class="btn btn-academic-blue btn-sm rounded-pill" target="_blank" rel="noopener noreferrer" role="button" style="text-transform: none;"><span class="publication-link-label">website</span></a>{% endcapture %}
         {% assign link_items = link_items | append: link_item | append: '|||' %}
       {% endif %}
 

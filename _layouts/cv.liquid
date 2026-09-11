@@ -9,9 +9,7 @@ layout: default
         <h1 class="cv-page-title">
           {{ page.title }}
           {% if page.cv_pdf %}
-            <a href="{{ page.cv_pdf | prepend: 'assets/' | relative_url }}" target="_blank" rel="noopener noreferrer" class="cv-pdf-link">
-              <i class="fa-solid fa-file-pdf"></i>
-            </a>
+            <a href="{{ page.cv_pdf | prepend: 'assets/' | relative_url }}" target="_blank" rel="noopener noreferrer" class="cv-pdf-link" aria-label="Open CV as PDF"><span class="cv-pdf-label">pdf</span></a>
           {% endif %}
         </h1>
       </header>
@@ -26,16 +24,18 @@ layout: default
 
           <div class="cv-contact-bar">
             {% if basics.email %}
-              <a href="mailto:{{ basics.email }}" class="cv-contact-link" title="Email">
-                <i class="fa-solid fa-envelope"></i>
-                <span>{{ basics.email }}</span>
-              </a>
+              <div class="cv-contact-row">
+                <span class="cv-contact-label">Email</span>
+                <a href="mailto:{{ basics.email }}" class="cv-contact-link">{{ basics.email }}</a>
+              </div>
             {% endif %}
             {% if basics.url %}
-              <a href="{{ basics.url }}" target="_blank" rel="noopener noreferrer" class="cv-contact-link" title="Website">
-                <i class="fa-solid fa-link"></i>
-                <span>{{ basics.url | remove: 'https://' }}</span>
-              </a>
+              <div class="cv-contact-row">
+                <span class="cv-contact-label">Website</span>
+                <a href="{{ basics.url }}" target="_blank" rel="noopener noreferrer" class="cv-contact-link">
+                  {{- basics.url | remove: 'https://' -}}
+                </a>
+              </div>
             {% endif %}
           </div>
         </div>
@@ -70,7 +70,7 @@ layout: default
                         {% endif %}
                       {% endif %}
                       {% if edu.location %}
-                        <span class="cv-location"><i class="fa-solid fa-location-dot"></i> {{ edu.location }}</span>
+                        <span class="cv-location">({{ edu.location }})</span>
                       {% endif %}
                     </div>
                   </div>
@@ -132,20 +132,8 @@ layout: default
           <h2 id="research-interests" class="cv-section-title">Research Interests</h2>
           <div class="cv-tags">
             {% for interest in site.data.cv.research_interests %}
-              <span class="cv-tag">{{ interest }}</span>
+              <span class="cv-tag">{{ interest }}{% unless forloop.last %},{% endunless %}</span>
             {% endfor %}
-          </div>
-        </section>
-      {% endif %}
-
-      {% if site.data.cv.service and site.data.cv.service.journal_refereeing and site.data.cv.service.journal_refereeing.size > 0 %}
-        <section class="cv-section mb-5">
-          <h2 id="service" class="cv-section-title">Professional Service</h2>
-          <div class="cv-skills">
-            <div class="cv-skill-row">
-              <span class="cv-skill-label">Journal Referee</span>
-              <span class="cv-skill-value">{{ site.data.cv.service.journal_refereeing | join: ", " }}</span>
-            </div>
           </div>
         </section>
       {% endif %}
